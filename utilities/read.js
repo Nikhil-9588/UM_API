@@ -3,44 +3,50 @@ const path = require('path');
 const csv = require('csv-parser');
 
 function readCsvRows(n) {
-  const dataList = [];
-  let rowNumber = 1;
+  return new Promise((resolve, reject) => {
+    const dataList = [];
+    let rowNumber = 1;
 
-  try {
-    const filePath = path.join(__dirname, '..', 'test-data', 'Testdata.csv');
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        if (rowNumber <= n) {
-          // Handle missing values by converting empty strings to null
-          for (const key in row) {
-            if (row[key] === '') {
-              row[key] = null;
+    try {
+      const filePath = path.join(__dirname, '..', 'test-data', 'Testdata.csv');
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (row) => {
+          if (rowNumber <= n) {
+            // Handle missing values by converting empty strings to null
+            for (const key in row) {
+              if (row[key] === '') {
+                row[key] = null;
+              }
             }
+
+            dataList.push(row);
+            rowNumber++;
           }
+        })
+        .on('end', () => {
+          // Processed all rows, resolve the promise with dataList
+          resolve(dataList);
+        });
+    } catch (error) {
+      // If an error occurs, reject the promise with the error
+      reject(`Error reading CSV file: ${error.message}`);
+    }
+  });
+}
 
-          dataList.push(row);
-          rowNumber++;
-        }
-      })
-      .on('end', () => {
-        // Processed all rows
-        console.log(dataList);
-      });
-
+async function data() {
+  try {
+    const dataList = await readCsvRows(2);
+    console.log(dataList);
   } catch (error) {
-    throw new Error(`Error reading CSV file: ${error.message}`);
+    console.error(error);
   }
 }
 
-// Example usage:
-const numberOfRowsToRead = 10;
-try {
-  readCsvRows(numberOfRowsToRead);
-} catch (error) {
-  console.error(error.message);
-}
+//data();
 
 
+module.exports.readCsvRows = readCsvRows;
 // npm install csv-parser 
 //npm install axios     

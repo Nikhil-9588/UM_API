@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 
-async function callApi(method, url, headers = {}, params = {}, data = null) {
+async function callApi(method, url, headers  , params , data=null ) {
   try {
     const config = {
       method,
@@ -9,11 +9,14 @@ async function callApi(method, url, headers = {}, params = {}, data = null) {
       headers,
       params,
       data,
+      timeout: 5000
     };
 
     const response = await axios(config);
     return response;
+
   } catch (error) {
+    console.log(error)
     throw new Error(`API request failed: ${error.message}`);
   }
 }
@@ -26,10 +29,9 @@ function test() {
     const authToken = authTokens[0] ? authTokens[0].token1 : undefined;
   
     const commonHeaders = {
-      'Authorization': `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
-    };
-  
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json', // Set the content type to JSON
+      }
     return commonHeaders;
   }
 
